@@ -1,0 +1,16 @@
+import pandas as pd
+import pickle
+# Load the data
+df = pd.read_csv("spotify_millsongdata.csv")
+# Preprocess the data
+df = df.sample(5000).drop('link', axis=1).reset_index(drop=True)
+df['text'] = df['text'].str.lower().replace(r'^\\w\\s', ' ').replace(r'\\n', ' ', regex=True)
+# Implement the recommendation system
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+tfidvector = TfidfVectorizer(analyzer='word', stop_words='english')
+matrix = tfidvector.fit_transform(df['text'])
+similarity = cosine_similarity(matrix)
+# Save the necessary files
+pickle.dump(similarity, open('similarity.pkl', 'wb'))
+pickle.dump(df, open('df.pkl', 'wb'))
